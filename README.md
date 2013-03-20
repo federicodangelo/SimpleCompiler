@@ -12,37 +12,37 @@ The source code is in spanish, sorry!
 
 Here is an example of the kind of scripts that it supports:
 
-int Test(int a) 
-{
-	a = a + 1;
-	int b = a;
+	int Test(int a) 
+	{
+		a = a + 1;
+		int b = a;
 	
-	if (b == 2)
-		b = 33;
+		if (b == 2)
+			b = 33;
 	
-	return(b);
-}
+		return(b);
+	}
 
-string addStrings(string a, string b)
-{
-	return(a+b);
-}
+	string addStrings(string a, string b)
+	{
+		return(a+b);
+	}
 
-string compareStrings(string a)
-{
-	string d;
-	
-	if (a == "Something")
-		d = "Something Works!";
+	string compareStrings(string a)
+	{
+		string d;
 		
-	return(d);		
-}
+		if (a == "Something")
+			d = "Something Works!";
+			
+		return(d);		
+	}
 
-void main()
-{
-	string s = addStrings("Some", "thing");
-	
-	compareStrings(a);
-	
-	Test();
-}
+	void main()
+	{
+		string s = addStrings("Some", "thing");
+		
+		compareStrings(a);
+		
+		Test();
+	}
