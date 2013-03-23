@@ -8,7 +8,7 @@ Very simple script language with ports in C# and C++ that can be used to add scr
 
 Both programs can parse / execute the same scripts in the same syntax.
 
-The source code is in spanish, sorry!
+The C version of the code is in spanish, but I have recently translated most of the C# version to english.
 
 Here is an example of the kind of scripts that it supports:
 ```C
