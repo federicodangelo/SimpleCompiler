@@ -4,7 +4,7 @@ Simple Compiler
 Very simple script language with ports in C# and C++ that can be used to add scripting to any kind of application.
 
 - "SimpleCompiler-C" contains the C++ implementation, made in Visual Studio 2005
-- "SimpleCompiler-DotNet" contains the C# implementation, made in Visual Studio 2005
+- "SimpleCompiler-DotNet" contains the C# implementation, made in Xamarin Studio 4 (Visual Studio compatible)
 
 Both programs can parse / execute the same scripts in the same syntax.
 
