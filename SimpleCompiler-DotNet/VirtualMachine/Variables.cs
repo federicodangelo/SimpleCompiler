@@ -1,17 +1,17 @@
 using System;
 
-namespace CompiladorReducido.MaquinaVirtual
+namespace SimpleCompiler.VirtualMachine
 {
 	public class Variables
 	{
 		private Variable[] variables;
 
-		public void Limpiar()
+		public void Clear()
 		{
 			variables = null;
 		}
 
-		public void Crear(int nVariables)
+		public void Create(int nVariables)
 		{
 			variables = new Variable[nVariables];
 
@@ -22,7 +22,7 @@ namespace CompiladorReducido.MaquinaVirtual
 		public Variable Variable(int n)
 		{
 			if (n >= variables.Length)
-				throw new ErrorEjecucion("Numero de variable invalido");
+				throw new RuntimeError("Invalid variable number");
 			
 			return variables[n];
 		}

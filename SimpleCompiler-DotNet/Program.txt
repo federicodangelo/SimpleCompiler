@@ -1,0 +1,68 @@
+/*int numero;
+int numero2;
+int numero3;
+int numero4;*/
+string globalString;
+
+int Hello(int a) 
+{
+	a = a + 1;
+	int b = a;
+	
+	if (b == 2)
+		b = 33;
+	
+	return(b);
+}
+
+string addStrings(string a, string b)
+{
+	return(a+b);
+}
+
+string compareString(string a)
+{
+	string d;
+	
+	if (a == "This works")
+		d = "This REALLY works :-)";
+	else
+		d = "This DOESNT work :-(";
+		
+	return(d);		
+}
+
+string returnGlobal()
+{
+	return(globalString);
+}
+
+void alterarGlobal()
+{
+	globalString = globalString + " full of colors";
+}
+
+void main()
+{
+	ShowMessage("Hello!! :-)");
+
+	globalString = "hello world";
+	
+	ShowMessage(globalString);
+	
+	Hello(1);
+	
+	string s = addStrings("This ", "works");
+	
+	ShowMessage("Function call returned: " + s);
+	
+	alterarGlobal();
+	
+	string s2 = returnGlobal();
+	
+	//numero = 123;
+			
+	ShowMessage(compareString(s));
+}
+
+

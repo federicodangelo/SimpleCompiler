@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C0C7FC77-F05A-4E78-8853-A6277115D53A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SimpleCompilerDotNet</RootNamespace>
+    <AssemblyName>SimpleCompiler-DotNet</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="VirtualMachine\" />
+    <Folder Include="Compiler\" />
+    <Folder Include="Shared\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="VirtualMachine\Runtime.cs" />
+    <Compile Include="VirtualMachine\Stack.cs" />
+    <Compile Include="VirtualMachine\Variable.cs" />
+    <Compile Include="VirtualMachine\Variables.cs" />
+    <Compile Include="Compiler\Lexer.cs" />
+    <Compile Include="Compiler\Parser.cs" />
+    <Compile Include="Compiler\SyntTree.cs" />
+    <Compile Include="Compile.cs" />
+    <Compile Include="Compiler\CodeGenerator.cs" />
+    <Compile Include="Compiler\Lexem.cs" />
+    <Compile Include="Compiler\Symbol.cs" />
+    <Compile Include="Shared\DataType.cs" />
+    <Compile Include="Shared\Function.cs" />
+    <Compile Include="VirtualMachine\Process.cs" />
+    <Compile Include="Shared\InstructionsList.cs" />
+    <Compile Include="Shared\VariableDefinition.cs" />
+    <Compile Include="Shared\VariablesTable.cs" />
+    <Compile Include="Shared\SymbolConstant.cs" />
+    <Compile Include="Shared\FunctionsDefinitions.cs" />
+    <Compile Include="VirtualMachine\RuntimeError.cs" />
+    <Compile Include="Shared\SymbolConstantTable.cs" />
+    <Compile Include="Compiler\SymbolTable.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Program.txt">
+      <Gettext-ScanForTranslations>False</Gettext-ScanForTranslations>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

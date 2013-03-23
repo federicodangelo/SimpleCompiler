@@ -1,10 +1,10 @@
 using System;
 
-namespace CompiladorReducido.Compilador
+namespace SimpleCompiler.Compiler
 {
 	public class Lexer
 	{
-		#region Atributos
+		#region Attributes
 
 		const int MAX_STRING_LEN = 128;
 		const int MAX_IDENTIFIER_LEN = 128;
@@ -60,7 +60,7 @@ namespace CompiladorReducido.Compilador
 			firstLexema = true;
 		}
 
-		void PrvGetChar()
+		private void PrvGetChar()
 		{
 			if (offsetInText != text.Length)
 			{
@@ -92,12 +92,12 @@ namespace CompiladorReducido.Compilador
 			firstLexema = true;
 		}
 
-		public bool GetLexema(ref Lexema lexema)
+		public bool GetLexem(ref Lexem lexem)
 		{
 			bool ok = true, repeat = true;
 
-            lexema.Line = line;
-			lexema.Column = column;
+            lexem.Line = line;
+			lexem.Column = column;
 
 			if (firstLexema)
 			{
@@ -120,18 +120,18 @@ namespace CompiladorReducido.Compilador
 						goto case ' ';
 					case ' ':
 						repeat = true;
-						lexema.Line = line;
-						lexema.Column = column;
+						lexem.Line = line;
+						lexem.Column = column;
 						PrvGetChar();
 						break;
 
 					case ';':
-						lexema.Type = Lexema.LexTypeEnum.LEX_END;
+						lexem.Type = Lexem.LexTypeEnum.LEX_END;
 						PrvGetChar();
 						break;
 
 					case '.':
-						lexema.Type = Lexema.LexTypeEnum.LEX_OP_MIEMBRO;
+						lexem.Type = Lexem.LexTypeEnum.LEX_OP_MEMBER;
 						PrvGetChar();
 						break;
 
@@ -141,10 +141,10 @@ namespace CompiladorReducido.Compilador
 						if (letra == '=')
 						{
 							PrvGetChar();
-							lexema.Type = Lexema.LexTypeEnum.LEX_OP_IGUAL;
+							lexem.Type = Lexem.LexTypeEnum.LEX_OP_EQUAL;
 						}
 						else
-							lexema.Type = Lexema.LexTypeEnum.LEX_OP_ASIGNACION;
+							lexem.Type = Lexem.LexTypeEnum.LEX_OP_ASSIGN;
 						break;
 
 					case '<':
@@ -153,49 +153,49 @@ namespace CompiladorReducido.Compilador
 						if (letra == '>')
 						{
 							PrvGetChar();
-							lexema.Type = Lexema.LexTypeEnum.LEX_OP_DISTINTO;
+							lexem.Type = Lexem.LexTypeEnum.LEX_OP_NOT_EQUAL;
 						}
 						else
-							lexema.Type = Lexema.LexTypeEnum.LEX_OP_MENOR;
+							lexem.Type = Lexem.LexTypeEnum.LEX_OP_LESS;
 						break;
 
 					case '>':
 						PrvGetChar();
-						lexema.Type = Lexema.LexTypeEnum.LEX_OP_MAYOR;
+						lexem.Type = Lexem.LexTypeEnum.LEX_OP_GREATER;
 						break;
 
 					case '(':
-						lexema.Type = Lexema.LexTypeEnum.LEX_PAR_ABRE;
+						lexem.Type = Lexem.LexTypeEnum.LEX_PAR_OPEN;
 						PrvGetChar();
 						break;
 
 					case ')':
-						lexema.Type = Lexema.LexTypeEnum.LEX_PAR_CIERRA;
+						lexem.Type = Lexem.LexTypeEnum.LEX_PAR_CLOSE;
 						PrvGetChar();
 						break;
 
 					case '{':
-						lexema.Type = Lexema.LexTypeEnum.LEX_LLAVE_ABRE;
+						lexem.Type = Lexem.LexTypeEnum.LEX_BRACES_OPEN;
 						PrvGetChar();
 						break;
 
 					case '}':
-						lexema.Type = Lexema.LexTypeEnum.LEX_LLAVE_CIERRA;
+						lexem.Type = Lexem.LexTypeEnum.LEX_BRACES_CLOSE;
 						PrvGetChar();
 						break;
 
 					case '+':
-						lexema.Type = Lexema.LexTypeEnum.LEX_OP_MAS;
+						lexem.Type = Lexem.LexTypeEnum.LEX_OP_ADDITION;
 						PrvGetChar();
 						break;
 
 					case '-':
-						lexema.Type = Lexema.LexTypeEnum.LEX_OP_MENOS;
+						lexem.Type = Lexem.LexTypeEnum.LEX_OP_SUBTRACTION;
 						PrvGetChar();
 						break;
 
 					case '*':
-						lexema.Type = Lexema.LexTypeEnum.LEX_OP_POR;
+						lexem.Type = Lexem.LexTypeEnum.LEX_OP_MULTIPLICATION;
 						PrvGetChar();
 						break;
 
@@ -220,8 +220,8 @@ namespace CompiladorReducido.Compilador
 								}
 							
 								repeat = true;
-								lexema.Line = line;
-								lexema.Column = column;
+								lexem.Line = line;
+								lexem.Column = column;
 								break;
 
 							case '/':
@@ -229,18 +229,18 @@ namespace CompiladorReducido.Compilador
 									PrvGetChar();
 							
 								repeat = true;
-								lexema.Line = line;
-								lexema.Column = column;
+								lexem.Line = line;
+								lexem.Column = column;
 								break;
 
 							default:
-								lexema.Type = Lexema.LexTypeEnum.LEX_OP_DIV;
+								lexem.Type = Lexem.LexTypeEnum.LEX_OP_DIVISION;
 								break;
 						}
 						break;
 
 					case ',':
-						lexema.Type = Lexema.LexTypeEnum.LEX_COMA;
+						lexem.Type = Lexem.LexTypeEnum.LEX_COMMA;
 						PrvGetChar();
 						break;
 
@@ -284,8 +284,8 @@ namespace CompiladorReducido.Compilador
 
 						str[i] = '\0';
 
-						lexema.Type = Lexema.LexTypeEnum.LEX_STRING;
-						lexema.String = new string(str, 0, i);
+						lexem.Type = Lexem.LexTypeEnum.LEX_STRING;
+						lexem.String = new string(str, 0, i);
 						break;
 					}
 
@@ -347,20 +347,20 @@ namespace CompiladorReducido.Compilador
 
 							f += aux;
 					
-							lexema.Float = f;
-							lexema.Type = Lexema.LexTypeEnum.LEX_FLOAT;
+							lexem.Float = f;
+							lexem.Type = Lexem.LexTypeEnum.LEX_FLOAT;
 						}
 						else
 						{
-							lexema.Integer = IntegerPart;
-							lexema.Type = Lexema.LexTypeEnum.LEX_INTEGER;
+							lexem.Integer = IntegerPart;
+							lexem.Type = Lexem.LexTypeEnum.LEX_INTEGER;
 						}
 						break;	
 					}
 					
 						
 					case '\0':
-						lexema.Type = Lexema.LexTypeEnum.LEX_EOF;
+						lexem.Type = Lexem.LexTypeEnum.LEX_EOF;
 						break;
 
 					default:
@@ -387,44 +387,44 @@ namespace CompiladorReducido.Compilador
 							
 							str[i] = '\0';
 
-							string strVerdadero = new string(str, 0, i);
+							string realString = new string(str, 0, i);
 
-							string[] palabrasReservadas = 
+							string[] reservedKeywords = 
 							{
-								"if",		((int) Lexema.LexTypeEnum.LEX_IF).ToString(), 
-								"else",		((int) Lexema.LexTypeEnum.LEX_ELSE).ToString(), 
-								"class",	((int) Lexema.LexTypeEnum.LEX_CLASS).ToString(), 
-								"return",	((int) Lexema.LexTypeEnum.LEX_RETURN).ToString(), 
-								"new",		((int) Lexema.LexTypeEnum.LEX_NEW).ToString(), 
-								"for",		((int) Lexema.LexTypeEnum.LEX_FOR).ToString(), 
-								"while",	((int) Lexema.LexTypeEnum.LEX_WHILE).ToString(),
-								"try",		((int) Lexema.LexTypeEnum.LEX_TRY).ToString(),
-								"catch",	((int) Lexema.LexTypeEnum.LEX_CATCH).ToString(),
-								"finally",	((int) Lexema.LexTypeEnum.LEX_FINALLY).ToString(),
-								"throw",	((int) Lexema.LexTypeEnum.LEX_THROW).ToString(),
+								"if",		((int) Lexem.LexTypeEnum.LEX_IF).ToString(), 
+								"else",		((int) Lexem.LexTypeEnum.LEX_ELSE).ToString(), 
+								"class",	((int) Lexem.LexTypeEnum.LEX_CLASS).ToString(), 
+								"return",	((int) Lexem.LexTypeEnum.LEX_RETURN).ToString(), 
+								"new",		((int) Lexem.LexTypeEnum.LEX_NEW).ToString(), 
+								"for",		((int) Lexem.LexTypeEnum.LEX_FOR).ToString(), 
+								"while",	((int) Lexem.LexTypeEnum.LEX_WHILE).ToString(),
+								"try",		((int) Lexem.LexTypeEnum.LEX_TRY).ToString(),
+								"catch",	((int) Lexem.LexTypeEnum.LEX_CATCH).ToString(),
+								"finally",	((int) Lexem.LexTypeEnum.LEX_FINALLY).ToString(),
+								"throw",	((int) Lexem.LexTypeEnum.LEX_THROW).ToString(),
 								null, null 
 							};
 
-							lexema.String = strVerdadero;
+							lexem.String = realString;
 
 							int n = 0;
-							bool bReservado = false;
+							bool reserved = false;
 
-							while (palabrasReservadas[n] != null)
+							while (reservedKeywords[n] != null)
 							{
-								if (strVerdadero == palabrasReservadas[n])
+								if (realString == reservedKeywords[n])
 								{
-									lexema.Type = (Lexema.LexTypeEnum) int.Parse(palabrasReservadas[n + 1]);
-									bReservado = true;
+									lexem.Type = (Lexem.LexTypeEnum) int.Parse(reservedKeywords[n + 1]);
+									reserved = true;
 									break;
 								}
 								n += 2;
 							}
 
-							if (bReservado == false)
+							if (reserved == false)
 							{
-								lexema.Type = Lexema.LexTypeEnum.LEX_IDENTIFICADOR;
-								lexema.String = strVerdadero;
+								lexem.Type = Lexem.LexTypeEnum.LEX_IDENTIFIER;
+								lexem.String = realString;
 							}
 					
 						}

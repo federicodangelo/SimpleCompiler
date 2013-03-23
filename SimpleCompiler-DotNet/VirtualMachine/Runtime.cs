@@ -1,14 +1,14 @@
 using System;
-using CompiladorReducido.Compartido;
+using SimpleCompiler.Shared;
 
-namespace CompiladorReducido.MaquinaVirtual
+namespace SimpleCompiler.VirtualMachine
 {
 	public class Runtime
 	{
 		private Variables variables;
-		private DefinicionFunciones definicionFunciones;
+		private FunctionsDefinitions definicionFunciones;
 	
-		public Runtime(DefinicionFunciones definicionFunciones)
+		public Runtime(FunctionsDefinitions definicionFunciones)
 		{
             this.definicionFunciones = definicionFunciones;
 			
@@ -19,10 +19,10 @@ namespace CompiladorReducido.MaquinaVirtual
 		{
             variables = new Variables();
 
-			variables.Crear(definicionFunciones.ObtenerVariables());
+			variables.Create(definicionFunciones.GetVariables());
 
-			for (int i = 0; i < definicionFunciones.ObtenerVariables(); i++)
-				variables.Variable(i).Tipo = definicionFunciones.ObtenerVariable(i).Tipo;
+			for (int i = 0; i < definicionFunciones.GetVariables(); i++)
+				variables.Variable(i).Type = definicionFunciones.GetVariable(i).Type;
 		}
 		
 		public Variables ObtenerVariables() 
@@ -35,7 +35,7 @@ namespace CompiladorReducido.MaquinaVirtual
 			this.variables = variables; 
 		}
 
-		public DefinicionFunciones ObtenerDefinicionFunciones() 
+		public FunctionsDefinitions ObtenerDefinicionFunciones() 
 		{ 
 			return definicionFunciones; 
 		}
