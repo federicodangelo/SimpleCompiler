@@ -384,13 +384,13 @@ namespace SimpleCompiler.VirtualMachine
 					stack.PushInt(int_value);
 					break;
 
-				case InstructionsList.InstructionsEnum.INST_FLOAT_A_INT:
+				case InstructionsList.InstructionsEnum.INST_FLOAT_TO_INT:
 					float_value = this.stack.PopFloat();
 					int_value = (int) float_value;
 					this.stack.PushInt(int_value);
 					break;
 
-				case InstructionsList.InstructionsEnum.INST_INT_A_FLOAT:
+				case InstructionsList.InstructionsEnum.INST_INT_TO_FLOAT:
 					int_value = this.stack.PopInt();
 					float_value = (float) int_value;
 					this.stack.PushFloat(float_value);
@@ -425,7 +425,7 @@ namespace SimpleCompiler.VirtualMachine
 
 				case InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_INT:
 				{
-					int nVar = functionsDefinitions.FindVariablePosition(this.constantsTable.GetSymbol(PrvGetParameter()).String);
+					int nVar = functionsDefinitions.FindVariableIndex(this.constantsTable.GetSymbol(PrvGetParameter()).String);
 					ThrowRuntimeErrorIf(nVar == FunctionsDefinitions.NOT_FOUND, "No se encontro la variable");
 					this.stack.PushInt(runtime.ObtenerVariables().Variable(nVar).GetInt());
 					break;
@@ -433,7 +433,7 @@ namespace SimpleCompiler.VirtualMachine
 
 				case InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_FLOAT:
 				{
-					int nVar = functionsDefinitions.FindVariablePosition(this.constantsTable.GetSymbol(PrvGetParameter()).String);
+					int nVar = functionsDefinitions.FindVariableIndex(this.constantsTable.GetSymbol(PrvGetParameter()).String);
 					ThrowRuntimeErrorIf(nVar == FunctionsDefinitions.NOT_FOUND, "No se encontro la variable");
 					this.stack.PushFloat(runtime.ObtenerVariables().Variable(nVar).GetFloat());
 					break;
@@ -441,7 +441,7 @@ namespace SimpleCompiler.VirtualMachine
 
 				case InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_STRING:
 				{
-					int nVar = functionsDefinitions.FindVariablePosition(this.constantsTable.GetSymbol(PrvGetParameter()).String);
+					int nVar = functionsDefinitions.FindVariableIndex(this.constantsTable.GetSymbol(PrvGetParameter()).String);
 
 					ThrowRuntimeErrorIf(nVar == FunctionsDefinitions.NOT_FOUND, "No se encontro la variable");
 					this.stack.PushString(runtime.ObtenerVariables().Variable(nVar).GetString());
@@ -471,7 +471,7 @@ namespace SimpleCompiler.VirtualMachine
 				case InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_INT:
 				{
 					int_value = this.stack.PopInt();
-					int nVar = functionsDefinitions.FindVariablePosition(this.constantsTable.GetSymbol(PrvGetParameter()).String);
+					int nVar = functionsDefinitions.FindVariableIndex(this.constantsTable.GetSymbol(PrvGetParameter()).String);
 					ThrowRuntimeErrorIf(nVar == FunctionsDefinitions.NOT_FOUND, "No se encontro la variable");
 					runtime.ObtenerVariables().Variable(nVar).SetInt(int_value);
 					break;
@@ -480,7 +480,7 @@ namespace SimpleCompiler.VirtualMachine
 				case InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_FLOAT:
 				{
 					float_value = this.stack.PopFloat();
-					int nVar = functionsDefinitions.FindVariablePosition(this.constantsTable.GetSymbol(PrvGetParameter()).String);
+					int nVar = functionsDefinitions.FindVariableIndex(this.constantsTable.GetSymbol(PrvGetParameter()).String);
 					ThrowRuntimeErrorIf(nVar == FunctionsDefinitions.NOT_FOUND, "No se encontro la variable");
 					runtime.ObtenerVariables().Variable(nVar).SetFloat(float_value);
 					break;
@@ -489,7 +489,7 @@ namespace SimpleCompiler.VirtualMachine
 				case InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_STRING:
 				{
 					string_value = this.stack.PopString();
-					int nVar = functionsDefinitions.FindVariablePosition(this.constantsTable.GetSymbol(PrvGetParameter()).String);
+					int nVar = functionsDefinitions.FindVariableIndex(this.constantsTable.GetSymbol(PrvGetParameter()).String);
 					ThrowRuntimeErrorIf(nVar == FunctionsDefinitions.NOT_FOUND, "No se encontro la variable");
 					runtime.ObtenerVariables().Variable(nVar).SetString(string_value);
 					break;

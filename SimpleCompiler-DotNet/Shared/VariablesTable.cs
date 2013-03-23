@@ -100,7 +100,7 @@ namespace SimpleCompiler.Shared
             return ((VariableData) variableData[n]).name; 
 		}
 
-		public int GetNumberOfLocalVariable() 
+		public int GetNumberOfLocalVariables() 
 		{ 
 			return(posLocal); 
 		}

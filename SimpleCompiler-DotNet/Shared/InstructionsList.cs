@@ -27,8 +27,8 @@ namespace SimpleCompiler.Shared
 
 			INST_ISZERO_INT, /* Toma: 1 int, Devuelve: 1 int */ /* Parametros: ninguno */
 
-			INST_FLOAT_A_INT, /* Toma: 1 float, Devuelve: 1 int */ /* Parametros: ninguno */
-			INST_INT_A_FLOAT, /* Toma: 1 int, Deuvuelve: 1 float */ /* Parametros: ninguno */
+			INST_FLOAT_TO_INT, /* Toma: 1 float, Devuelve: 1 int */ /* Parametros: ninguno */
+			INST_INT_TO_FLOAT, /* Toma: 1 int, Deuvuelve: 1 float */ /* Parametros: ninguno */
 		
 			INST_INC_INT, /* Toma: 1 int, Devuelve: 1 int */ /* Parametros: ninguno */
 			INST_DEC_INT, /* Toma: 1 int, Devuelve: 1 int */ /* Parametros: ninguno */
@@ -100,14 +100,14 @@ namespace SimpleCompiler.Shared
 			return pos;
 		}
 
-		public int AddInstruction(InstructionsEnum instruccion, short parametro)
+		public int AddInstruction(InstructionsEnum instruction, short parameter)
 		{
 			int pos = nInstructions;
 
-			instructions[nInstructions++] = (byte) instruccion;
+			instructions[nInstructions++] = (byte) instruction;
 
-			instructions[nInstructions++] = (byte) (((ushort) parametro) & 255);
-			instructions[nInstructions++] = (byte) (((ushort) parametro) >> 8);
+			instructions[nInstructions++] = (byte) (((ushort) parameter) & 255);
+			instructions[nInstructions++] = (byte) (((ushort) parameter) >> 8);
 
 			return pos;
 		}
@@ -216,11 +216,11 @@ namespace SimpleCompiler.Shared
 						Console.Write("Int is 0 (zero)\n");
 						break;
 
-					case InstructionsEnum.INST_FLOAT_A_INT:
+					case InstructionsEnum.INST_FLOAT_TO_INT:
 						Console.Write("Convert float to int\n");
 						break;
 
-					case InstructionsEnum.INST_INT_A_FLOAT:
+					case InstructionsEnum.INST_INT_TO_FLOAT:
 						Console.Write("Convert int to float\n");
 						break;
 

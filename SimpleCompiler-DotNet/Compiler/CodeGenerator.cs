@@ -15,7 +15,7 @@ namespace SimpleCompiler.Compiler
 	{
 		private VariablesTable variablesTable;
         private FunctionsDefinitions functionsDefinitions;
-        private InstructionsList instructionList;
+        private InstructionsList instructionsList;
         private Function function;
 
 		public CodeGenerator()
@@ -28,11 +28,11 @@ namespace SimpleCompiler.Compiler
 
 			functionsDefinitions = new FunctionsDefinitions();
 			variablesTable = new VariablesTable();
-			instructionList = new InstructionsList(8192);
+			instructionsList = new InstructionsList(8192);
 
 			try
 			{
-				PrvAgregarInstruccion(tree);
+				PrvAddInstruction(tree);
 
 				ok = true;
 			}
@@ -53,198 +53,173 @@ namespace SimpleCompiler.Compiler
 			return functionsDefinitions;
 		}
 
-		private int PrvAddConstant(int valor)
+		private int PrvAddConstant(int val)
 		{
 			int n;
 
-			n = functionsDefinitions.ConstantsTable.FindSymbolInt(valor);
+			n = functionsDefinitions.ConstantsTable.FindSymbolInt(val);
 
 			if (n == SymbolConstantTable.NOT_FOUND)
 			{
 				SymbolConstant simbolo = new SymbolConstant();
 				simbolo.Type = SymbolConstant.SymbolTypeEnum.SYMBOL_TYPE_CONSTANT_INT;
-				simbolo.Integer = valor;
+				simbolo.Integer = val;
 				n = functionsDefinitions.ConstantsTable.AddSimbolo(simbolo);
 			}
 
 			return(n);
 		}
 
-		int PrvAddConstant(float valor)
+		private int PrvAddConstant(float val)
 		{
 			int n;
 
-			n = functionsDefinitions.ConstantsTable.FindSymbolFloat(valor);
+			n = functionsDefinitions.ConstantsTable.FindSymbolFloat(val);
 
 			if (n == SymbolConstantTable.NOT_FOUND)
 			{
 				SymbolConstant simbolo = new SymbolConstant();
 				simbolo.Type = SymbolConstant.SymbolTypeEnum.SYMBOL_TYPE_CONSTANT_FLOAT;
-				simbolo.Float = valor;
+				simbolo.Float = val;
 				n = functionsDefinitions.ConstantsTable.AddSimbolo(simbolo);
 			}
 
 			return(n);
 		}
 
-		int PrvAddConstant(string valor)
+		private int PrvAddConstant(string val)
 		{
 			int n;
 
-			n = functionsDefinitions.ConstantsTable.FindSymbolString(valor);
+			n = functionsDefinitions.ConstantsTable.FindSymbolString(val);
 
 			if (n == SymbolConstantTable.NOT_FOUND)
 			{
 				SymbolConstant simbolo = new SymbolConstant();
 				simbolo.Type = SymbolConstant.SymbolTypeEnum.SYMBOL_TYPE_CONSTANT_STRING;
-				simbolo.String = valor;
+				simbolo.String = val;
 				n = functionsDefinitions.ConstantsTable.AddSimbolo(simbolo);
 			}
 
 			return(n);
 		}
 
-		int PrvAgregarSimbolo(Symbol simbolo)
+		private int PrvAddSymbol(Symbol simbolo)
 		{
 			int n = -1;
 
 			return(n);
 		}
 
-		void PrvAgregarInstruccion(SyntTree nodo)
+		private void PrvAddInstruction(SyntTree node)
 		{
 			int i;
 
-			switch(nodo.Type)
+			switch(node.Type)
 			{
 				case SyntTree.SyntTypeEnum.SYNT_INSTRUCTION_NULL:
-					instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_NULL);
+					instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_NULL);
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_FUNCTION_DECLARATION:
 				{
-					Symbol definicionFuncion = nodo.FunctionDefinitionSymbol;
+					Symbol functionDefinition = node.FunctionDefinitionSymbol;
 
-					if (!definicionFuncion.NativeFunction)
+					if (!functionDefinition.NativeFunction)
 					{
-						function = functionsDefinitions.FindFunction(definicionFuncion.FullFunctionName);
+						function = functionsDefinitions.FindFunction(functionDefinition.FullFunctionName);
 
-						SymbolTable tablaSimbolos = nodo.GetChild(0).SymbolsTable;
+						SymbolTable symbolsTable = node.GetChild(0).SymbolsTable;
 
-						int nCantVars = 0;
+						int numberOfVars = 0;
 
-						for (i = 0; i < tablaSimbolos.GetSymbols(); i++)
+						for (i = 0; i < symbolsTable.GetSymbols(); i++)
 						{
-							Symbol simbolo = tablaSimbolos.GetSymbol(i);
+							Symbol simbolo = symbolsTable.GetSymbol(i);
                             
 							variablesTable.AddLocalVariable(simbolo.Name);
 
-							nCantVars++;
+							numberOfVars++;
 						}
 				
-						instructionList = function.InstructionsList;
+						instructionsList = function.InstructionsList;
 
-						for (i = 0; i < nodo.GetChilds(); i++)
-							PrvAgregarInstruccion(nodo.GetChild(i));
+						for (i = 0; i < node.GetChilds(); i++)
+							PrvAddInstruction(node.GetChild(i));
 
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_RETURN);
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_RETURN);
 				
-						while(nCantVars-- != 0)
+						while(numberOfVars-- != 0)
 							variablesTable.RemoveLastVariable();
 
-						instructionList = null;
+						instructionsList = null;
 						function = null;
 					}
 					else
 					{
-						Function funcion = functionsDefinitions.FindFunction(definicionFuncion.FullFunctionName);
-
-						/*if (m_pBuscarFuncionNativa != null)
-						{
-							FuncionNativa* pFuncionNativa = m_pBuscarFuncionNativa(definicionFuncion.NombreFuncionCompleto);
-
-							if (pFuncionNativa != null)
-							{
-								funcion.SetearTipoFuncion(Funcion.FUNCION_NATIVA);
-
-								funcion.SetearFuncionNativa(pFuncionNativa);
-							}
-							else
-							{
-								CCadena cad;
-
-								cad.ConcatenarCadena("No se encontro la funci�n externa ");
-								cad.ConcatenarCadena(definicionFuncion.NombreFuncionCompleto);
-
-								ThrowGeneradorCodigoError(cad);
-							}
-						}
-						else
-						{*/
-						throw new CodeGeneratorError(string.Format("No se encontro la funci�n externa {0}", definicionFuncion.FullFunctionName));
-						//}
+						throw new CodeGeneratorError(string.Format("Invalid external function definition: {0}", functionDefinition.FullFunctionName));
 					}
 					break;
 				}
 
 				case SyntTree.SyntTypeEnum.SYNT_RETURN:
-					PrvAgregarInstruccion(nodo.GetChild(0));
-					instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_RETURN);
+					PrvAddInstruction(node.GetChild(0));
+					instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_RETURN);
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_FUNCTIONS_LIST:
 				{
-					SymbolTable tablaSimbolos = nodo.GetChild(0).SymbolsTable;
+					SymbolTable tablaSimbolos = node.GetChild(0).SymbolsTable;
 
-					int nCantVars = 0;
+					int numberOfVars = 0;
 
 					for (i = 0; i < tablaSimbolos.GetSymbols(); i++)
 					{
-						Symbol simbolo = tablaSimbolos.GetSymbol(i);
+						Symbol symbol = tablaSimbolos.GetSymbol(i);
 
-						switch(simbolo.Type)
+						switch(symbol.Type)
 						{
 							case Symbol.SymbolTypeEnum.SYMBOL_TYPE_VARIABLE:
 							{
 								VariableDefinition variable = new VariableDefinition();
 
-								variable.Type = PrvTraducirSimboloATipoDato(simbolo.ReturnType);
-								variable.Name = simbolo.Name;
+								variable.Type = PrvTranslateSymbolToDataType(symbol.ReturnType);
+								variable.Name = symbol.Name;
 
 								functionsDefinitions.AddVariable(variable);
 
-								variablesTable.AddGlobalVariable(simbolo.Name);
+								variablesTable.AddGlobalVariable(symbol.Name);
 
-								nCantVars++;
+								numberOfVars++;
 
 								break;
 							}
 
 							case Symbol.SymbolTypeEnum.SYMBOL_TYPE_FUNCTION:
 							{
-								if (simbolo.NativeFunction == false)
+								if (symbol.NativeFunction == false)
 								{
-									Function funcion = new Function();
+									Function function = new Function();
 
-									functionsDefinitions.AddFunction(funcion);
+									functionsDefinitions.AddFunction(function);
 
-									Symbol definicionFuncion = simbolo;
+									Symbol functionDefinition = symbol;
 
-									funcion.Name = definicionFuncion.FullFunctionName;
-									funcion.NameShort = definicionFuncion.Name;
+									function.Name = functionDefinition.FullFunctionName;
+									function.NameShort = functionDefinition.Name;
 
-									funcion.ReturnType = PrvTraducirSimboloATipoDato(definicionFuncion.ReturnType);
+									function.ReturnType = PrvTranslateSymbolToDataType(functionDefinition.ReturnType);
 
-									funcion.NumberOfVariables = definicionFuncion.NumberOfVariables;
+									function.NumberOfVariables = functionDefinition.NumberOfVariables;
 
-									for (int k = 0; k < definicionFuncion.GetParameters(); k++)
+									for (int k = 0; k < functionDefinition.GetParameters(); k++)
 									{
-										VariableDefinition parametro = new VariableDefinition();
+										VariableDefinition parameter = new VariableDefinition();
 
-										parametro.Type = PrvTraducirSimboloATipoDato(definicionFuncion.GetParameter(k).ReturnType);
-										parametro.Name = definicionFuncion.GetParameter(k).Name;
+										parameter.Type = PrvTranslateSymbolToDataType(functionDefinition.GetParameter(k).ReturnType);
+										parameter.Name = functionDefinition.GetParameter(k).Name;
 
-										funcion.AddParameter(parametro);
+										function.AddParameter(parameter);
 									}
 								}
 								break;
@@ -252,13 +227,13 @@ namespace SimpleCompiler.Compiler
 						}
 					}
 
-					for (i = 0; i < nodo.GetChilds(); i++)
+					for (i = 0; i < node.GetChilds(); i++)
 					{
-						if (nodo.GetChild(i).Type == SyntTree.SyntTypeEnum.SYNT_FUNCTION_DECLARATION)
-							PrvAgregarInstruccion(nodo.GetChild(i));
+						if (node.GetChild(i).Type == SyntTree.SyntTypeEnum.SYNT_FUNCTION_DECLARATION)
+							PrvAddInstruction(node.GetChild(i));
 					}
 
-					while(nCantVars-- != 0)
+					while(numberOfVars-- != 0)
 						variablesTable.RemoveLastVariable();
 
 					break;
@@ -266,84 +241,84 @@ namespace SimpleCompiler.Compiler
 
 				case SyntTree.SyntTypeEnum.SYNT_INSTRUCTIONS_LIST:
 				{
-					int nCantVarsLocales = variablesTable.GetNumberOfLocalVariable();
+					int numberOfLocalVars = variablesTable.GetNumberOfLocalVariables();
 
-					for (i = 0; i < nodo.GetChilds(); i++)
-						PrvAgregarInstruccion(nodo.GetChild(i));
+					for (i = 0; i < node.GetChilds(); i++)
+						PrvAddInstruction(node.GetChild(i));
 
-					while (variablesTable.GetNumberOfLocalVariable() != nCantVarsLocales)
+					while (variablesTable.GetNumberOfLocalVariables() != numberOfLocalVars)
 						variablesTable.RemoveLastVariable();
 
 					break;
 				}
 
 				case SyntTree.SyntTypeEnum.SYNT_INSTRUCTION:
-					PrvAgregarInstruccion(nodo.GetChild(0));
-					if (nodo.ReturnType != null)
-						if (nodo.ReturnType.Name != DataType.NAME_VOID)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP);
+					PrvAddInstruction(node.GetChild(0));
+					if (node.ReturnType != null)
+						if (node.ReturnType.Name != DataType.NAME_VOID)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP);
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_VARIABLE_DECLARATION:
-					if (instructionList != null)
+					if (instructionsList != null)
 					{
-						for (i = 0; i < nodo.GetChilds(); i++)
+						for (i = 0; i < node.GetChilds(); i++)
 						{
-							variablesTable.AddLocalVariable(nodo.GetChild(i).String);
+							variablesTable.AddLocalVariable(node.GetChild(i).String);
 
 							//Me fijo si tiene algun inicializador
-							if (nodo.GetChild(i).GetChilds() != 0)
+							if (node.GetChild(i).GetChilds() != 0)
 							{
 								//Tiene un inicializador
-								PrvAgregarInstruccion(nodo.GetChild(i).GetChild(0));
+								PrvAddInstruction(node.GetChild(i).GetChild(0));
 							}
 							else
 							{
 								//No tiene inicializador
 								//Genero el c�digo que inicializa la variable a los tipos de datos b�sicos
-								if (nodo.GetChild(i).ReturnType.Name == DataType.NAME_FLOAT)
-									instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_FLOAT, (short) PrvAddConstant((float) 0.0f));
+								if (node.GetChild(i).ReturnType.Name == DataType.NAME_FLOAT)
+									instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_FLOAT, (short) PrvAddConstant((float) 0.0f));
 
-								else if (nodo.GetChild(i).ReturnType.Name == DataType.NAME_INT)
-									instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_INT, (short) PrvAddConstant((long) 0));
+								else if (node.GetChild(i).ReturnType.Name == DataType.NAME_INT)
+									instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_INT, (short) PrvAddConstant((long) 0));
 
-								else if (nodo.GetChild(i).ReturnType.Name == DataType.NAME_STRING)
-									instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_STRING, (short) PrvAddConstant(""));
+								else if (node.GetChild(i).ReturnType.Name == DataType.NAME_STRING)
+									instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_STRING, (short) PrvAddConstant(""));
 							}
 					
 							//Genero el c�digo que va a sacar del stack el valor con el cual se inicializa la variable
 							//y se lo va a asignar a la variable
-							if (nodo.GetChild(i).ReturnType.Name == DataType.NAME_FLOAT)
-								instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_FLOAT, (short) (variablesTable.GetNumberOfLocalVariable() - 1));
+							if (node.GetChild(i).ReturnType.Name == DataType.NAME_FLOAT)
+								instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_FLOAT, (short) (variablesTable.GetNumberOfLocalVariables() - 1));
 							
-							else if (nodo.GetChild(i).ReturnType.Name == DataType.NAME_INT)
-								instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_INT, (short) (variablesTable.GetNumberOfLocalVariable() - 1));
+							else if (node.GetChild(i).ReturnType.Name == DataType.NAME_INT)
+								instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_INT, (short) (variablesTable.GetNumberOfLocalVariables() - 1));
 					
-							else if (nodo.GetChild(i).ReturnType.Name == DataType.NAME_STRING)
-								instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_STRING, (short) (variablesTable.GetNumberOfLocalVariable() - 1));
+							else if (node.GetChild(i).ReturnType.Name == DataType.NAME_STRING)
+								instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_STRING, (short) (variablesTable.GetNumberOfLocalVariables() - 1));
 					
 							else
-								instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_OBJ, (short) (variablesTable.GetNumberOfLocalVariable() - 1));
+								instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_OBJ, (short) (variablesTable.GetNumberOfLocalVariables() - 1));
 						}
 					}
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_FUNCTION_CALL:
 				{
-					for (i = 0; i < nodo.GetChilds(); i++)
-						PrvAgregarInstruccion(nodo.GetChild(i));
+					for (i = 0; i < node.GetChilds(); i++)
+						PrvAddInstruction(node.GetChild(i));
 
-					int posFuncion = functionsDefinitions.FunctionFunctionPosition(nodo.String);
+					int functionIndex = functionsDefinitions.FindFunctionIndex(node.String);
 
-					if (posFuncion != -1)
+					if (functionIndex != -1)
 					{
-                        instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_CALL_FUNCTION, (short) posFuncion);
+                        instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_CALL_FUNCTION, (short) functionIndex);
 					}
 					else
 					{
-                        posFuncion = PrvAddConstant(nodo.String);
+                        functionIndex = PrvAddConstant(node.String);
 
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_CALL_GLOBAL_FUNCTION, (short) posFuncion);
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_CALL_GLOBAL_FUNCTION, (short) functionIndex);
 					}
 					break;
 				}
@@ -353,29 +328,29 @@ namespace SimpleCompiler.Compiler
 
 				case SyntTree.SyntTypeEnum.SYNT_VARIABLE:
 				{
-					int nPos = variablesTable.FindVariable(nodo.String);
+					int variableIndex = variablesTable.FindVariable(node.String);
 
-					if (variablesTable.GetVariableLocation(nPos) == VariablesTable.VariableLocationEnum.LOCATION_LOCAL)
+					if (variablesTable.GetVariableLocation(variableIndex) == VariablesTable.VariableLocationEnum.LOCATION_LOCAL)
 					{
-						nPos = variablesTable.GetVariablePosition(nPos);
+						variableIndex = variablesTable.GetVariablePosition(variableIndex);
 
-						if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_VAR_FLOAT, (short) nPos);
-						else if (nodo.ReturnType.Name == DataType.NAME_INT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_VAR_INT, (short) nPos);
-						else if (nodo.ReturnType.Name == DataType.NAME_STRING)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_VAR_STRING, (short) nPos);
+						if (node.ReturnType.Name == DataType.NAME_FLOAT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_VAR_FLOAT, (short) variableIndex);
+						else if (node.ReturnType.Name == DataType.NAME_INT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_VAR_INT, (short) variableIndex);
+						else if (node.ReturnType.Name == DataType.NAME_STRING)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_VAR_STRING, (short) variableIndex);
 					}
 					else
 					{
-						nPos = PrvAddConstant(nodo.String);
+						variableIndex = PrvAddConstant(node.String);
 
-						if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_FLOAT, (short) nPos);
-						else if (nodo.ReturnType.Name == DataType.NAME_INT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_INT, (short) nPos);
-						else if (nodo.ReturnType.Name == DataType.NAME_STRING)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_STRING, (short) nPos);
+						if (node.ReturnType.Name == DataType.NAME_FLOAT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_FLOAT, (short) variableIndex);
+						else if (node.ReturnType.Name == DataType.NAME_INT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_INT, (short) variableIndex);
+						else if (node.ReturnType.Name == DataType.NAME_STRING)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_GLOBAL_VAR_STRING, (short) variableIndex);
 					}
 
 					break;
@@ -385,68 +360,68 @@ namespace SimpleCompiler.Compiler
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_CONSTANT:
-					if (nodo.ReturnType.Name == DataType.NAME_STRING)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_STRING, (short) PrvAddConstant((string) nodo.String));
-					else if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_FLOAT, (short) PrvAddConstant((float) nodo.Float));
-					else if (nodo.ReturnType.Name == DataType.NAME_INT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_INT, (short) PrvAddConstant((int) nodo.Integer));
+					if (node.ReturnType.Name == DataType.NAME_STRING)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_STRING, (short) PrvAddConstant((string) node.String));
+					else if (node.ReturnType.Name == DataType.NAME_FLOAT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_FLOAT, (short) PrvAddConstant((float) node.Float));
+					else if (node.ReturnType.Name == DataType.NAME_INT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_PUSH_INT, (short) PrvAddConstant((int) node.Integer));
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_CONVERSION:
-					PrvAgregarInstruccion(nodo.GetChild(0));
+					PrvAddInstruction(node.GetChild(0));
 
-					if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_INT_A_FLOAT);
-					else if (nodo.ReturnType.Name == DataType.NAME_INT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_FLOAT_A_INT);
+					if (node.ReturnType.Name == DataType.NAME_FLOAT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_INT_TO_FLOAT);
+					else if (node.ReturnType.Name == DataType.NAME_INT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_FLOAT_TO_INT);
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_OP_ASSIGNATION:
 					//Agrego las instrucciones del lado derecho que dejan en el stack el valor a asignar
-					PrvAgregarInstruccion(nodo.GetChild(1));
-					instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_DUP);
+					PrvAddInstruction(node.GetChild(1));
+					instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_DUP);
 				
 					//Asgino el valor del stack a la variable segun corresponda..
-					switch(nodo.GetChild(0).Type)
+					switch(node.GetChild(0).Type)
 					{
 						case SyntTree.SyntTypeEnum.SYNT_VARIABLE:
 						{
-							int nPos = variablesTable.FindVariable(nodo.GetChild(0).String);
+							int variableIndex = variablesTable.FindVariable(node.GetChild(0).String);
 
-							switch(variablesTable.GetVariableLocation(nPos))
+							switch(variablesTable.GetVariableLocation(variableIndex))
 							{
 								case VariablesTable.VariableLocationEnum.LOCATION_LOCAL:
-									nPos = variablesTable.GetVariablePosition(nPos);
+									variableIndex = variablesTable.GetVariablePosition(variableIndex);
 
-									switch(PrvTraducirSimboloATipoDato(nodo.GetChild(0).ReturnType).Type)
+									switch(PrvTranslateSymbolToDataType(node.GetChild(0).ReturnType).Type)
 									{
 										case DataType.DataTypeEnum.TYPE_INT:
-											instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_INT, (short) nPos);
+											instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_INT, (short) variableIndex);
 											break;
 										case DataType.DataTypeEnum.TYPE_FLOAT:
-											instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_FLOAT, (short) nPos);
+											instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_FLOAT, (short) variableIndex);
 											break;
 										case DataType.DataTypeEnum.TYPE_STRING:
-											instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_STRING, (short) nPos);
+											instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_VAR_STRING, (short) variableIndex);
 											break;
 									}
 										
 									break;
 
 								case VariablesTable.VariableLocationEnum.LOCATION_GLOBAL:
-									nPos = PrvAddConstant(nodo.GetChild(0).String);
+									variableIndex = PrvAddConstant(node.GetChild(0).String);
 										
-									switch(PrvTraducirSimboloATipoDato(nodo.GetChild(0).ReturnType).Type)
+									switch(PrvTranslateSymbolToDataType(node.GetChild(0).ReturnType).Type)
 									{
 										case DataType.DataTypeEnum.TYPE_INT:
-											instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_INT, (short) nPos);
+											instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_INT, (short) variableIndex);
 											break;
 										case DataType.DataTypeEnum.TYPE_FLOAT:
-											instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_FLOAT, (short) nPos);
+											instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_FLOAT, (short) variableIndex);
 											break;
 										case DataType.DataTypeEnum.TYPE_STRING:
-											instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_STRING, (short) nPos);
+											instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP_GLOBAL_VAR_STRING, (short) variableIndex);
 											break;
 									}
 
@@ -459,148 +434,152 @@ namespace SimpleCompiler.Compiler
 
 				case SyntTree.SyntTypeEnum.SYNT_OP_COMPARISON_EQUAL:
 					//Agrego las instrucciones del lado derecho que dejan en el stack el valor a comparar
-					PrvAgregarInstruccion(nodo.GetChild(1));
+					PrvAddInstruction(node.GetChild(1));
 					//Agrego las instrucciones del lado izquierdo que dejan en el stack el valor a comparar
-					PrvAgregarInstruccion(nodo.GetChild(0));
+					PrvAddInstruction(node.GetChild(0));
 
 					//Agrego la instrucci�n de comparaci�n que corresponda
-				switch(PrvTraducirSimboloATipoDato(nodo.GetChild(0).ReturnType).Type)
-				{
-					case DataType.DataTypeEnum.TYPE_INT:
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_INT);
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_ISZERO_INT);
-						break;
-					case DataType.DataTypeEnum.TYPE_FLOAT:
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_FLOAT);
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_FLOAT_A_INT);
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_ISZERO_INT);
-						break;
-					case DataType.DataTypeEnum.TYPE_STRING:
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_COMPARE_STRING);
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_ISZERO_INT);
-						break;
-				}
+    				switch(PrvTranslateSymbolToDataType(node.GetChild(0).ReturnType).Type)
+    				{
+    					case DataType.DataTypeEnum.TYPE_INT:
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_INT);
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_ISZERO_INT);
+    						break;
+
+    					case DataType.DataTypeEnum.TYPE_FLOAT:
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_FLOAT);
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_FLOAT_TO_INT);
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_ISZERO_INT);
+    						break;
+
+    					case DataType.DataTypeEnum.TYPE_STRING:
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_COMPARE_STRING);
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_ISZERO_INT);
+    						break;
+    				}
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_OP_COMPARISON_NOT_EQUAL:
 					//Agrego las instrucciones del lado derecho que dejan en el stack el valor a comparar
-					PrvAgregarInstruccion(nodo.GetChild(1));
+					PrvAddInstruction(node.GetChild(1));
 					//Agrego las instrucciones del lado izquierdo que dejan en el stack el valor a comparar
-					PrvAgregarInstruccion(nodo.GetChild(0));
+					PrvAddInstruction(node.GetChild(0));
 
 					//Agrego la instrucci�n de comparaci�n que corresponda
-				switch(PrvTraducirSimboloATipoDato(nodo.GetChild(0).ReturnType).Type)
-				{
-					case DataType.DataTypeEnum.TYPE_INT:
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_INT);
-						break;
-					case DataType.DataTypeEnum.TYPE_FLOAT:
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_FLOAT);
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_FLOAT_A_INT);
-						break;
-					case DataType.DataTypeEnum.TYPE_STRING:
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_COMPARE_STRING);
-						break;
-				}
+    				switch(PrvTranslateSymbolToDataType(node.GetChild(0).ReturnType).Type)
+    				{
+    					case DataType.DataTypeEnum.TYPE_INT:
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_INT);
+    						break;
+
+    					case DataType.DataTypeEnum.TYPE_FLOAT:
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_FLOAT);
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_FLOAT_TO_INT);
+    						break;
+
+    					case DataType.DataTypeEnum.TYPE_STRING:
+    						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_COMPARE_STRING);
+    						break;
+    				}
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_OP_ADDITION:
-					if (nodo.GetChild(1).Type == SyntTree.SyntTypeEnum.SYNT_CONSTANT && 
-						nodo.GetChild(1).ReturnType.Name == DataType.NAME_INT &&
-						nodo.GetChild(1).Integer == 1)
+					if (node.GetChild(1).Type == SyntTree.SyntTypeEnum.SYNT_CONSTANT && 
+						node.GetChild(1).ReturnType.Name == DataType.NAME_INT &&
+						node.GetChild(1).Integer == 1)
 					{
 						//Uso el operador de incremento de int en 1
-						PrvAgregarInstruccion(nodo.GetChild(0));
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_INC_INT);
+						PrvAddInstruction(node.GetChild(0));
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_INC_INT);
 					}
 					else
 					{
 						//Uso la suma normal
-						for (i = 0; i < nodo.GetChilds(); i++)
-							PrvAgregarInstruccion(nodo.GetChild(i));
+						for (i = 0; i < node.GetChilds(); i++)
+							PrvAddInstruction(node.GetChild(i));
 					
-						if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_ADD_FLOAT);
-						else if (nodo.ReturnType.Name == DataType.NAME_INT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_ADD_INT);
-						else if (nodo.ReturnType.Name == DataType.NAME_STRING)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_CONCAT_STRING);
+						if (node.ReturnType.Name == DataType.NAME_FLOAT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_ADD_FLOAT);
+						else if (node.ReturnType.Name == DataType.NAME_INT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_ADD_INT);
+						else if (node.ReturnType.Name == DataType.NAME_STRING)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_CONCAT_STRING);
 					}
 
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_OP_SUBTRACT:
-					if (nodo.GetChild(1).Type == SyntTree.SyntTypeEnum.SYNT_CONSTANT && 
-						nodo.GetChild(1).ReturnType.Name == DataType.NAME_INT &&
-						nodo.GetChild(1).Integer == 1)
+					if (node.GetChild(1).Type == SyntTree.SyntTypeEnum.SYNT_CONSTANT && 
+						node.GetChild(1).ReturnType.Name == DataType.NAME_INT &&
+						node.GetChild(1).Integer == 1)
 					{
 						//Uso el operador de decremento de int en 1
-						PrvAgregarInstruccion(nodo.GetChild(0));
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_DEC_INT);
+						PrvAddInstruction(node.GetChild(0));
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_DEC_INT);
 					}
 					else
 					{
 						//Uso la resta normal
-						for (i = 0; i < nodo.GetChilds(); i++)
-							PrvAgregarInstruccion(nodo.GetChild(i));
+						for (i = 0; i < node.GetChilds(); i++)
+							PrvAddInstruction(node.GetChild(i));
 
-						if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_FLOAT);
+						if (node.ReturnType.Name == DataType.NAME_FLOAT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_FLOAT);
 						else
-							if (nodo.ReturnType.Name == DataType.NAME_INT)
-							instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_INT);
+							if (node.ReturnType.Name == DataType.NAME_INT)
+							instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_SUB_INT);
 					}
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_OP_MULTIPLICATION:
-					for (i = 0; i < nodo.GetChilds(); i++)
-						PrvAgregarInstruccion(nodo.GetChild(i));
+					for (i = 0; i < node.GetChilds(); i++)
+						PrvAddInstruction(node.GetChild(i));
 
-					if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_MULT_FLOAT);
+					if (node.ReturnType.Name == DataType.NAME_FLOAT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_MULT_FLOAT);
 					else
-						if (nodo.ReturnType.Name == DataType.NAME_INT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_MULT_INT);
+						if (node.ReturnType.Name == DataType.NAME_INT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_MULT_INT);
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_OP_DIVISION:
-					for (i = 0; i < nodo.GetChilds(); i++)
-						PrvAgregarInstruccion(nodo.GetChild(i));
+					for (i = 0; i < node.GetChilds(); i++)
+						PrvAddInstruction(node.GetChild(i));
 
-					if (nodo.ReturnType.Name == DataType.NAME_FLOAT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_DIV_FLOAT);
+					if (node.ReturnType.Name == DataType.NAME_FLOAT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_DIV_FLOAT);
 					else
-						if (nodo.ReturnType.Name == DataType.NAME_INT)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_DIV_INT);
+						if (node.ReturnType.Name == DataType.NAME_INT)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_DIV_INT);
 					break;
 
 				case SyntTree.SyntTypeEnum.SYNT_IF:
 				{
 					//Agrego las instrucciones que ejecutan la condicion
-					PrvAgregarInstruccion(nodo.GetChild(0));
+					PrvAddInstruction(node.GetChild(0));
 					//Agrego el salto segun la condicion
-					int nInstruccionIf = instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP_IF_ZERO, 0);
+					int instrucionIfIndex = instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP_IF_ZERO, 0);
 					//Agrego las instrucciones que se ejecutan cuando la condicion se cumple
-					PrvAgregarInstruccion(nodo.GetChild(1));
+					PrvAddInstruction(node.GetChild(1));
 				
-					int nInstruccionElse = 0;
+					int instructionElseIndex = 0;
 				
-					if (nodo.GetChilds() == 3)
-						nInstruccionElse = instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP, 0);
+					if (node.GetChilds() == 3)
+						instructionElseIndex = instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP, 0);
 
-					int nInstruccion = instructionList.GetInstructions();
+					int instructionIndex = instructionsList.GetInstructions();
 
 					//Actualizo la instruccion de salto cuando la condici�n no se cumple
-					instructionList.SetParameter(nInstruccionIf, (short) (nInstruccion - nInstruccionIf - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER));
+					instructionsList.SetParameter(instrucionIfIndex, (short) (instructionIndex - instrucionIfIndex - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER));
 				
-					if (nodo.GetChilds() == 3)
+					if (node.GetChilds() == 3)
 					{
 						//Agrego las instrucciones que se ejecutan cuando la condicion no se cumple
-						PrvAgregarInstruccion(nodo.GetChild(2));
+						PrvAddInstruction(node.GetChild(2));
 
-						nInstruccion = instructionList.GetInstructions();
+						instructionIndex = instructionsList.GetInstructions();
 
-						instructionList.SetParameter(nInstruccionElse, (short) (nInstruccion - nInstruccionElse - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER));
+						instructionsList.SetParameter(instructionElseIndex, (short) (instructionIndex - instructionElseIndex - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER));
 					}
 										
 					break;
@@ -608,58 +587,58 @@ namespace SimpleCompiler.Compiler
 
 				case SyntTree.SyntTypeEnum.SYNT_WHILE:
 				{
-					int nInstCondicion = instructionList.GetInstructions();
+					int nInstCondicion = instructionsList.GetInstructions();
 
 					//Agrego las instrucciones que ejecutan la condicion
-					PrvAgregarInstruccion(nodo.GetChild(0));
+					PrvAddInstruction(node.GetChild(0));
 					//Agrego el salto segun la condicion
-					int nInstruccionSaltoNoCumple = instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP_IF_ZERO, (short) 0);
+					int nInstruccionSaltoNoCumple = instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP_IF_ZERO, (short) 0);
 					//Agrego las instrucciones que se ejecutan cuando la condicion se cumple
-					PrvAgregarInstruccion(nodo.GetChild(1));
+					PrvAddInstruction(node.GetChild(1));
 				
 					//Agrego la instruccion que salta hacia donde se evalua el ciclo
-					int nInstFinCiclo = instructionList.GetInstructions();
+					int nInstFinCiclo = instructionsList.GetInstructions();
 					int Salto = nInstCondicion - nInstFinCiclo - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER;
-					instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP, (short) Salto);
+					instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP, (short) Salto);
 
-					int nInstruccion = instructionList.GetInstructions();
+					int nInstruccion = instructionsList.GetInstructions();
 
 					//Actualizo la instruccion de salto cuando la condici�n no se cumple
-					instructionList.SetParameter(nInstruccionSaltoNoCumple, (short) (nInstruccion - nInstruccionSaltoNoCumple - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER));
+					instructionsList.SetParameter(nInstruccionSaltoNoCumple, (short) (nInstruccion - nInstruccionSaltoNoCumple - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER));
 					break;
 				}
 
 				case SyntTree.SyntTypeEnum.SYNT_FOR:
 				{
 					//Agrego las instrucciones que inicializan la condici�n el ciclo
-					PrvAgregarInstruccion(nodo.GetChild(0));
-					if (PrvTraducirSimboloATipoDato(nodo.GetChild(0).ReturnType).Type != DataType.DataTypeEnum.TYPE_VOID)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP);
+					PrvAddInstruction(node.GetChild(0));
+					if (PrvTranslateSymbolToDataType(node.GetChild(0).ReturnType).Type != DataType.DataTypeEnum.TYPE_VOID)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP);
 
 					//Agrego las instrucciones que evaluan la condici�n del ciclo
-					int nInstCondicion = instructionList.GetInstructions();
-					PrvAgregarInstruccion(nodo.GetChild(1));
+					int nInstCondicion = instructionsList.GetInstructions();
+					PrvAddInstruction(node.GetChild(1));
 				
 					//Agrego el salto segun el resultado de la condicion
-					int nInstCondicionSalto = instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP_IF_ZERO, 0);
+					int nInstCondicionSalto = instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP_IF_ZERO, 0);
 
 					//Agrego las instrucciones que se ejecutan cuando la condicion se cumple
-					PrvAgregarInstruccion(nodo.GetChild(3));
+					PrvAddInstruction(node.GetChild(3));
 
 					//Agrego las instrucciones que incrementar en contador del ciclo
-					PrvAgregarInstruccion(nodo.GetChild(2));
-					if (PrvTraducirSimboloATipoDato(nodo.GetChild(2).ReturnType).Type != DataType.DataTypeEnum.TYPE_VOID)
-						instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP);
+					PrvAddInstruction(node.GetChild(2));
+					if (PrvTranslateSymbolToDataType(node.GetChild(2).ReturnType).Type != DataType.DataTypeEnum.TYPE_VOID)
+						instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_STACK_POP);
 
 					//Agrego la instruccion que salta hacia donde se evalua el ciclo
-					int nInstFinCiclo = instructionList.GetInstructions();
+					int nInstFinCiclo = instructionsList.GetInstructions();
 					int Salto = nInstCondicion - nInstFinCiclo - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER;
-					instructionList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP, (short) Salto);
+					instructionsList.AddInstruction(InstructionsList.InstructionsEnum.INST_JUMP, (short) Salto);
 
 					//Actualizo la instruccion de salto a fin de ciclo donde se evalua la condicion
-					nInstFinCiclo = instructionList.GetInstructions();
+					nInstFinCiclo = instructionsList.GetInstructions();
 					Salto = nInstFinCiclo - nInstCondicionSalto - InstructionsList.LEN_INSTRUCTION - InstructionsList.LEN_PARAMETER;
-					instructionList.SetParameter(nInstCondicionSalto, (short) Salto);
+					instructionsList.SetParameter(nInstCondicionSalto, (short) Salto);
 					break;
 				}
 
@@ -668,7 +647,7 @@ namespace SimpleCompiler.Compiler
 			}
 		}
 
-		DataType PrvTraducirSimboloATipoDato(Symbol simbolo)
+		DataType PrvTranslateSymbolToDataType(Symbol simbolo)
 		{
 			DataType Tipo = new DataType();
 

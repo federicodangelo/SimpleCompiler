@@ -56,7 +56,7 @@ namespace SimpleCompiler.Shared
 			functions.Add(funcion);
 		}
 
-		public int FunctionFunctionPosition(string name)
+		public int FindFunctionIndex(string name)
 		{
 			for (int i = 0; i < functions.Count; i++)
 				if (((Function) functions[i]).Name == name)
@@ -65,7 +65,7 @@ namespace SimpleCompiler.Shared
 			return -1;
 		}
 
-		public int FindVariablePosition(string name)
+		public int FindVariableIndex(string name)
 		{
 			for (int i = 0; i < variables.Count; i++)
 				if (((VariableDefinition) variables[i]).Name == name)
@@ -188,11 +188,11 @@ namespace SimpleCompiler.Shared
 							//FIX_ME Falta simulacion de stack..
 							break;
 
-						case InstructionsList.InstructionsEnum.INST_FLOAT_A_INT:
+						case InstructionsList.InstructionsEnum.INST_FLOAT_TO_INT:
 							//FIX_ME Falta simulacion de stack..
 							break;
 
-						case InstructionsList.InstructionsEnum.INST_INT_A_FLOAT:
+						case InstructionsList.InstructionsEnum.INST_INT_TO_FLOAT:
 							//FIX_ME Falta simulacion de stack..
 							break;
 
