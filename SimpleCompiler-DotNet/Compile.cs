@@ -12,23 +12,19 @@ namespace SimpleCompiler
 		[STAThread]
 		static void Main(string[] args)
 		{
-			Function[] funcionesExternas = { new Function("int ShowMessage(string message)", new Function.NativeFunctionDelegate(FuncShowMessage)) };
+			Function[] externalFunctions = { new Function("int ShowMessage(string message)", new Function.NativeFunctionDelegate(FuncShowMessage)) };
 
-			System.IO.StreamReader archivo = File.OpenText("Program.txt");
-
-			string programa = archivo.ReadToEnd();
-
-			archivo.Close();
+			string program = File.ReadAllText("Program.txt");
 
 			Parser parser = new Parser();
-			CodeGenerator generador = new CodeGenerator();
+			CodeGenerator generator = new CodeGenerator();
             List<CodeGeneratorError> errorsCodeGenerator = new List<CodeGeneratorError>();
             List<ParserError> errorsParser = new List<ParserError>();
 
 			SyntTree tree = null;
 
-			parser.SetProgram(programa);
-			parser.SetExternalsFunctions(funcionesExternas);
+			parser.SetProgram(program);
+			parser.SetExternalsFunctions(externalFunctions);
 
             if (parser.GenSyntTree(out tree, ref errorsParser))
 			{
@@ -36,21 +32,21 @@ namespace SimpleCompiler
 
 				Console.Write("\n\nCompilation OK, generating code\n\n");
 
-				generador.GenerateCode(tree, ref errorsCodeGenerator);		
+				generator.GenerateCode(tree, ref errorsCodeGenerator);		
 
-				generador.GetFunctionsDefinitions().Print(0);
+				generator.GetFunctionsDefinitions().Print(0);
 
                 Console.Write("\n\nCode generation OK, running\n\n");
 
-                Process proceso = new Process();
+                Process process = new Process();
 
-				proceso.AddDefinitions(generador.GetFunctionsDefinitions());
+				process.AddDefinitions(generator.GetFunctionsDefinitions());
 
-				proceso.AddExternalFunctions(funcionesExternas);
+				process.AddExternalFunctions(externalFunctions);
 
-				proceso.Init();
+				process.Init();
 
-				proceso.CallFunction("void#main()");
+				process.CallFunction("void#main()");
 			}
 			else
 			{

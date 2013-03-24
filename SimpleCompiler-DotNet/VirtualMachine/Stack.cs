@@ -217,7 +217,7 @@ namespace SimpleCompiler.VirtualMachine
 			return(this.dataTypes[n + this.offsetVars]); 
 		}
 
-		public void SetVarInt(int n, int valor)
+		public void SetVarInt(int n, int val)
 		{
 			//Chequeo no necesario porque chequeo todos los indices en CDefinicionObjeto::PrvValidarFuncion
 			//ThrowErrorEjecucionSi(n >= this.cantVars, "Numero de variable invalido");
@@ -226,10 +226,10 @@ namespace SimpleCompiler.VirtualMachine
 
 			this.dataTypes[n] = DataType.DataTypeEnum.TYPE_INT;
 
-			this.values[n] = valor;
+			this.values[n] = val;
 		}
 
-		public void SetVarFloat(int n, float valor)
+		public void SetVarFloat(int n, float val)
 		{
 			//Chequeo no necesario porque chequeo todos los indices en CDefinicionObjeto::PrvValidarFuncion
 			//ThrowErrorEjecucionSi(n >= this.cantVars, "Numero de variable invalido");
@@ -238,10 +238,10 @@ namespace SimpleCompiler.VirtualMachine
 
 			this.dataTypes[n] = DataType.DataTypeEnum.TYPE_FLOAT;
 
-			this.values[n] = valor;
+			this.values[n] = val;
 		}
 
-		public void SetVarString(int n, string valor)
+		public void SetVarString(int n, string val)
 		{
 			//Chequeo no necesario porque chequeo todos los indices en CDefinicionObjeto::PrvValidarFuncion
 			//ThrowErrorEjecucionSi(n >= this.cantVars, "Numero de variable invalido");
@@ -250,7 +250,7 @@ namespace SimpleCompiler.VirtualMachine
 
 			this.dataTypes[n] = DataType.DataTypeEnum.TYPE_STRING;
 
-			this.values[n] = valor;
+			this.values[n] = val;
 		}
 
 		public int GetVarInt(int n)

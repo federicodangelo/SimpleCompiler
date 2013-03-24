@@ -14,7 +14,7 @@ namespace SimpleCompiler.VirtualMachine
 		};
 
 		private Stack stack;
-        private int nInstruction;
+        private int instructionOffset;
 
         private Runtime	runtime;
         private Function function;
@@ -34,14 +34,14 @@ namespace SimpleCompiler.VirtualMachine
 		{
 			state = ProcessStateEnum.STATE_INITIALIZED;
 			stack = new Stack();
-			nInstruction = 0;
+			instructionOffset = 0;
 		}
 
 		public void Clear()
 		{
 			stack.Clear();
 			state = ProcessStateEnum.STATE_INITIALIZED;
-			nInstruction = 0;
+			instructionOffset = 0;
 			function = null;
 			instructionsList = null;
 			functionsDefinitions = null;
@@ -78,13 +78,17 @@ namespace SimpleCompiler.VirtualMachine
 					while (this.stack.GetNumberOfElementsInFunctionCallStack() > 0)
 					{
 						PrvRunInstruction();
-						if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+                        if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+
 						PrvRunInstruction();
-						if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+                        if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+
 						PrvRunInstruction();
-						if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+                        if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+
 						PrvRunInstruction();
-						if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+                        if (this.stack.GetNumberOfElementsInFunctionCallStack() == 0)	break;
+
 						PrvRunInstruction();
 					}
 				}
@@ -104,7 +108,7 @@ namespace SimpleCompiler.VirtualMachine
 				Console.Write("Runtime error: {0}\n", err.Message);
 				Console.Write("Call stack: \n");
 				
-				Console.Write("\tFunction {0}, Line {1}\n", function.Name, nInstruction);
+				Console.Write("\tFunction {0}, Line {1}\n", function.Name, instructionOffset);
 
 				while (this.stack.GetNumberOfElementsInFunctionCallStack() > 0)
 				{
@@ -167,7 +171,7 @@ namespace SimpleCompiler.VirtualMachine
 
 		private void PrvCallFunction(Function funcion)
 		{
-			this.stack.PushFunctionCall(funcion.GetParameters(), funcion.NumberOfVariables, this.function, nInstruction);
+			this.stack.PushFunctionCall(funcion.GetParameters(), funcion.NumberOfVariables, this.function, instructionOffset);
 
 			this.function = funcion;
 
@@ -175,13 +179,13 @@ namespace SimpleCompiler.VirtualMachine
 			{
 				instructionsList = this.function.InstructionsList;
 
-				nInstruction = 0;
+				instructionOffset = 0;
 			}
 			else
 			{
-				string descripcionError;
+				string errorDescription;
 
-				bool ok = funcion.NativeFunction(this, stack, out descripcionError);
+				bool ok = funcion.NativeFunction(this, stack, out errorDescription);
 
 				if (funcion.ReturnType != null &&
 					funcion.ReturnType.Type != DataType.DataTypeEnum.TYPE_VOID &&
@@ -195,7 +199,7 @@ namespace SimpleCompiler.VirtualMachine
 				}
 
 				if (ok == false)
-					throw new RuntimeError(descripcionError);
+					throw new RuntimeError(errorDescription);
 
 				PrvReturnFromFunction();
 			}
@@ -203,12 +207,12 @@ namespace SimpleCompiler.VirtualMachine
 
 		private void PrvReturnFromFunction()
 		{
-			Function funcionLlamada = this.function;
+			Function calledFunction = this.function;
 			Stack stack = this.stack;
 
 			Stack.InfoStackFunctions info = stack.GetLastFunctionCall();
 
-			this.nInstruction = info.instruction;
+			this.instructionOffset = info.instruction;
 			this.function = info.functions;
 
 			if (this.function != null)
@@ -216,7 +220,7 @@ namespace SimpleCompiler.VirtualMachine
 			else
 				this.instructionsList = null;
 
-			switch(funcionLlamada.ReturnType.Type)
+			switch(calledFunction.ReturnType.Type)
 			{
 				case DataType.DataTypeEnum.TYPE_NONE:
 					stack.PopFunctionCall();
@@ -264,18 +268,18 @@ namespace SimpleCompiler.VirtualMachine
 
 		private InstructionsList.InstructionsEnum PrvGetInstruction()
 		{
-			InstructionsList.InstructionsEnum inst = instructionsList.GetInstruction(nInstruction);
+			InstructionsList.InstructionsEnum inst = instructionsList.GetInstruction(instructionOffset);
 			
-			nInstruction += InstructionsList.LEN_INSTRUCTION;
+			instructionOffset += InstructionsList.LEN_INSTRUCTION;
 
 			return inst;
 		}
 
 		private short PrvGetParameter()
 		{
-			short param = instructionsList.GetParameterOffsetted(nInstruction);
+			short param = instructionsList.GetParameterOffsetted(instructionOffset);
 			
-			nInstruction += InstructionsList.LEN_PARAMETER;
+			instructionOffset += InstructionsList.LEN_PARAMETER;
 
 			return param;
 		}
@@ -497,17 +501,17 @@ namespace SimpleCompiler.VirtualMachine
 
 				case InstructionsList.InstructionsEnum.INST_JUMP:
 				{
-					short salto = PrvGetParameter();
-					nInstruction += salto;
+					short jumpOffset = PrvGetParameter();
+					instructionOffset += jumpOffset;
 					break;
 				}
 
 				case InstructionsList.InstructionsEnum.INST_JUMP_IF_ZERO:
 				{
 					int_value = this.stack.PopInt();
-					short salto = PrvGetParameter();
+					short jumpOffset = PrvGetParameter();
 					if (int_value == 0)
-						nInstruction += salto;
+						instructionOffset += jumpOffset;
 					break;
 				}
 
@@ -517,8 +521,8 @@ namespace SimpleCompiler.VirtualMachine
 
 				case InstructionsList.InstructionsEnum.INST_CALL_GLOBAL_FUNCTION:
 				{
-					string nombreFuncion = this.constantsTable.GetSymbol(PrvGetParameter()).String;
-					PrvCallExternalFunction(nombreFuncion);
+					string functionName = this.constantsTable.GetSymbol(PrvGetParameter()).String;
+					PrvCallExternalFunction(functionName);
 					break;
 				}
 
